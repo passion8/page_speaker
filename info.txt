@@ -1,0 +1,6 @@
+I used chrome extension sample code and some of the iReader souce code to create this extension.
+All codes inside this extension are BSD lisenced.
+if you find any bug, you can send me email at paritosh@15as.com.
+Thanks
+-
+Paritosh.
