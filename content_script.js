@@ -1363,7 +1363,7 @@ function content(){
   a = ea(M) || E(M);
   
   if (a == undefined) {
-    return "Sorry, We couldn't read this page, please select the text and click Speak button. If you think this is bug, please contact Paritosh at paritosh at 1 5 A S .com"
+    return "Sorry, We couldn't read this page, please select the text and click Speak button. If you think this is bug, please contact paritosh at 1 5 A S .com"
   } else {
     return a.textContent;
   }
