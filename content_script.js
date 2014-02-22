@@ -1390,7 +1390,8 @@ function speakSelection() {
   }
   
   if (selectedText == "") {
-    selectedText = content()
+    var _ref;
+    selectedText = (_ref = content()) != null ? _ref.trim() : void 0;
   }
   
   chrome.extension.sendRequest({'speak': selectedText});
