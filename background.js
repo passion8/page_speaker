@@ -23,7 +23,7 @@ function speak(utterance) {
   chrome.browserAction.setIcon({path: 'page_speaker16-active.png'});
   words = utterance.split(' ');
   numberOfWords = words.length;
-  var limit = 30;
+  var limit = 100;
   var rate = localStorage['rate'] || 1.0;
   var pitch = localStorage['pitch'] || 1.0;
   var volume = localStorage['volume'] || 1.0;
