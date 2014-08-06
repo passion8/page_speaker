@@ -46,7 +46,11 @@ function load() {
   var voice = document.getElementById('voice');
   var voiceArray = [];
   chrome.tts.getVoices(function(va) {
-    voiceArray = va;
+    va.map(function(available_voice) { 
+      if ((available_voice.lang == "en-US") && (available_voice.remote == false)) {
+        voiceArray.push(available_voice);
+      }
+    });
     for (var i = 0; i < voiceArray.length; i++) {
       var opt = document.createElement('option');
       var name = voiceArray[i].voiceName;
@@ -73,7 +77,7 @@ function load() {
   var testButton = document.getElementById('test');
   testButton.addEventListener('click', function(evt) {
     chrome.tts.speak(
-        'God bless you.',
+        'paritosh piplewar',
         {voiceName: localStorage['voice'],
          rate: parseFloat(rate),
          pitch: parseFloat(pitch),
@@ -124,3 +128,4 @@ function load() {
 }
 
 document.addEventListener('DOMContentLoaded', load);
+

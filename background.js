@@ -9,12 +9,6 @@ if (localStorage['lastVersionUsed'] != '1') {
   });
 }
 
-var lastWorld;
-function getWordsBetween(fullText,startingSpeakingIndex,endingSpeakingIndex) {
-  textArray = fullText.substr(startingSpeakingIndex,endingSpeakingIndex).split(' ');
-  lastWord = textArray.pop();
-  return textArray.slice(0,textArray.length - 1).join(' ');
-}
 
 
 function speak(utterance) {
@@ -29,31 +23,28 @@ function speak(utterance) {
   chrome.browserAction.setIcon({path: 'page_speaker16-active.png'});
   words = utterance.split(' ');
   numberOfWords = words.length;
-  limit = 100;
+  var limit = 30;
+  var rate = localStorage['rate'] || 1.0;
+  var pitch = localStorage['pitch'] || 1.0;
+  var volume = localStorage['volume'] || 1.0;
+  var voice = localStorage['voice'];
+  var option = {rate: rate, pitch: pitch, volume: volume, voice: voice,utteranceIndex: utteranceIndex};
   numberOfTimesIteration = Math.ceil(numberOfWords/limit);
   for(var i = 0; i < numberOfTimesIteration; i++) {
     var startingSpeakingIndex = i * limit;
     var endingSpeakingIndex = startingSpeakingIndex + limit;
     var text = words.slice(startingSpeakingIndex,endingSpeakingIndex).join(' ');
-    var rate = localStorage['rate'] || 1.0;
-    var pitch = localStorage['pitch'] || 1.0;
-    var volume = localStorage['volume'] || 1.0;
-    var voice = localStorage['voice'];
-    var enqueue;
-    option = {rate: rate, pitch: pitch, volume: volume, voice: voice,utteranceIndex: utteranceIndex};
     if(i == 0) {
       console.log(text);
       option["enqueue"] = false;
-      speakText(text,option); 
-    }
-    else {
+    } else {
       console.log(text);
       option["enqueue"] = true;
       if(i == (numberOfTimesIteration - 1)) {
         option["isLastText"] = true
       }
-      speakText(text,option);
     }
+    speakText(text,option);
   }
 
 }
