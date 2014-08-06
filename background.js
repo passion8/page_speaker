@@ -9,43 +9,93 @@ if (localStorage['lastVersionUsed'] != '1') {
   });
 }
 
+var lastWorld;
+function getWordsBetween(fullText,startingSpeakingIndex,endingSpeakingIndex) {
+  textArray = fullText.substr(startingSpeakingIndex,endingSpeakingIndex).split(' ');
+  lastWord = textArray.pop();
+  return textArray.slice(0,textArray.length - 1).join(' ');
+}
+
+
 function speak(utterance) {
   if (speaking && utterance == lastUtterance) {
     chrome.tts.stop();
     return;
   }
-
   speaking = true;
   lastUtterance = utterance;
   globalUtteranceIndex++;
   var utteranceIndex = globalUtteranceIndex;
-
   chrome.browserAction.setIcon({path: 'page_speaker16-active.png'});
+  words = utterance.split(' ');
+  numberOfWords = words.length;
+  limit = 100;
+  numberOfTimesIteration = Math.ceil(numberOfWords/limit);
+  for(var i = 0; i < numberOfTimesIteration; i++) {
+    var startingSpeakingIndex = i * limit;
+    var endingSpeakingIndex = startingSpeakingIndex + limit;
+    var text = words.slice(startingSpeakingIndex,endingSpeakingIndex).join(' ');
+    var rate = localStorage['rate'] || 1.0;
+    var pitch = localStorage['pitch'] || 1.0;
+    var volume = localStorage['volume'] || 1.0;
+    var voice = localStorage['voice'];
+    var enqueue;
+    option = {rate: rate, pitch: pitch, volume: volume, voice: voice,utteranceIndex: utteranceIndex};
+    if(i == 0) {
+      console.log(text);
+      option["enqueue"] = false;
+      speakText(text,option); 
+    }
+    else {
+      console.log(text);
+      option["enqueue"] = true;
+      if(i == (numberOfTimesIteration - 1)) {
+        option["isLastText"] = true
+      }
+      speakText(text,option);
+    }
+  }
 
-  var rate = localStorage['rate'] || 1.0;
-  var pitch = localStorage['pitch'] || 1.0;
-  var volume = localStorage['volume'] || 1.0;
-  var voice = localStorage['voice'];
-  
-  chrome.tts.speak(
-      utterance,
-      {voiceName: voice,
-       rate: parseFloat(rate),
-       pitch: parseFloat(pitch),
-       volume: parseFloat(volume),
-       onEvent: function(evt) {
-         if (evt.type == 'end' ||
-             evt.type == 'interrupted' ||
-             evt.type == 'cancelled' ||
-             evt.type == 'error') {
-           if (utteranceIndex == globalUtteranceIndex) {
-             speaking = false;
-             chrome.browserAction.setIcon({path: 'page_speaker16.png'});
-           }
-         }
-       }
-      });
 }
+
+
+
+function speakText(text, option) {
+  var rate = parseFloat(option['rate']);
+  var pitch = parseFloat(option['pitch']);
+  var volume = parseFloat(option['volume']);
+  var voice = option['voice'];
+  var enqueue = option['enqueue'];
+  var utteranceIndex = option['utteranceIndex'];
+  var isLastText = option['isLastText'];
+  chrome.tts.speak(
+    text,
+    {
+      voiceName: voice,
+      rate: rate,
+      enqueue: enqueue,
+      pitch: pitch,
+      volume: volume,
+      onEvent: function(evt) {
+        if (evt.type == 'interrupted' || evt.type == 'cancelled' || evt.type == 'error') {
+          if (utteranceIndex == globalUtteranceIndex) {
+            speaking = false;
+            chrome.browserAction.setIcon({path: 'page_speaker16.png'});
+           }
+        } else if ( (evt.type == 'end')  && isLastText) {
+            speaking = false;
+            chrome.browserAction.setIcon({path: 'page_speaker16.png'});
+        }
+
+      }
+    }
+  );
+}
+
+
+
+
+
 
 function initBackground() {
   loadContentScriptInAllTabs();
